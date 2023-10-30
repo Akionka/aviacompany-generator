@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -136,12 +137,26 @@ type (
 	}
 )
 
+var (
+	dbUsername string
+	dbPassword string
+	dbHost     string
+)
+
+func init() {
+	flag.StringVar(&dbUsername, "Username", "root", "username of the db user")
+	flag.StringVar(&dbPassword, "Password", "password", "password of the db user")
+	flag.StringVar(&dbHost, "Host", "localhost", "host of the db")
+}
+
 func main() {
+	flag.Parse()
 	rand.Seed(1)
-	db, err := sqlx.Connect("mysql", "root:password@(localhost)/aviacompany?parseTime=true&time_zone=%27GMT%27")
+	db, err := sqlx.Connect("mysql", fmt.Sprintf("%s:%s@(%s)/aviacompany?parseTime=true&time_zone=%%27GMT%%27", dbUsername, dbPassword, dbHost))
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer db.Close()
 	db.SetMaxOpenConns(100)
 	db.SetMaxIdleConns(100)
